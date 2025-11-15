@@ -39,6 +39,7 @@ public class Aula {
     private Integer numOrdenadores;
 
     @OneToMany(mappedBy = "aula")
-    @JsonManagedReference
+    @JsonManagedReference(value = "aula-reservas")
     private List<Reserva> reservas;
+
 }

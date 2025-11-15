@@ -38,6 +38,9 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()  // /auth/login y /auth/register son públicos
                         .requestMatchers("/tramo-horario/**").permitAll()
                         .requestMatchers("/public/**").permitAll()
+                        .requestMatchers("/aula/**").permitAll()
+                        .requestMatchers("/reserva/**").permitAll()
+                        .requestMatchers("/usuario/**").permitAll()  // Solo ADMIN puede gestionar usuarios
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()              // Todas las demás rutas requieren autenticación
                 )

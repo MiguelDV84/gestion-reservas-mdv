@@ -1,6 +1,7 @@
 package com.example.reservasBoscoMdv.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -32,17 +33,18 @@ public class Reserva {
     @Column(name = "fecha_creacion", nullable = false, updatable = false)
     private LocalDate fechaCreacion;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "aula_id", nullable = false)
     @JsonBackReference(value = "aula-reservas")
     private Aula aula;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "tramo_horario_id", nullable = false)
     @JsonBackReference(value = "tramo-reservas")
     private TramoHorario tramoHorario;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "usuario_id", nullable = false)
+    @JsonManagedReference(value = "usuario-reservas")
     private Usuario usuario;
 }

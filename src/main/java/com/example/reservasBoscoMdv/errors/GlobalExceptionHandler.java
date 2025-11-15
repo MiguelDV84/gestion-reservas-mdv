@@ -26,11 +26,10 @@ public class GlobalExceptionHandler {
 
                 return ResponseEntity.badRequest().body(errorResponse);
             }
-
         }
 
         ErrorResponse genericError = ErrorResponse.builder()
-                .error("DATA_INTEGRITY_VIOLATION")
+                .error(ErrorType.DATA_INTEGRITY_VIOLATION.getCode())
                 .message("Se ha producido un error de integridad de datos.")
                 .detail(ex.getMessage())
                 .build();

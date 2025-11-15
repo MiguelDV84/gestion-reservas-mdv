@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/aula")
+@CrossOrigin(origins = "*")
 public class AulaController {
 
     private final AulaService aulaService;

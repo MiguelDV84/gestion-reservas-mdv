@@ -11,10 +11,9 @@ import com.example.reservasBoscoMdv.entities.TramoHorario;
 import com.example.reservasBoscoMdv.entities.Usuario;
 import com.example.reservasBoscoMdv.repositories.IReservaRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -25,29 +24,83 @@ public class ReservaService {
     private final TramoHorarioService tramoHorarioService;
     private final UsuarioService usuarioService;
 
-    public Optional<Reserva> findById(Long id) {
-        return reservaRepository.findById(id);
+    public ReservaResponse findById(Long id) {
+
+        Reserva reserva = reservaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+
+        Aula aula = reserva.getAula();
+        TramoHorario tramo = reserva.getTramoHorario();
+        Usuario usuario = reserva.getUsuario();
+
+        return getReservaResponse(aula, tramo, usuario, reserva);
     }
 
-    public Optional<ReservaResponse> insert(ReservaRequest reservaRequest) {
-        Aula aula = aulaService.findById(reservaRequest.aulaId()).orElse(null);
-        TramoHorario tramoHorario = tramoHorarioService.findById(reservaRequest.tramoId()).orElse(null);
-        Usuario usuario = usuarioService.findById(reservaRequest.usuarioId()).orElse(null);
+    public List<ReservaResponse> findAll() {
+        List<Reserva> reservas = reservaRepository.findAll();
+
+        return reservas.stream().map(reserva -> {
+            Aula aula = reserva.getAula();
+            TramoHorario tramo = reserva.getTramoHorario();
+            Usuario usuario = reserva.getUsuario();
+            return getReservaResponse(aula, tramo, usuario, reserva);
+        }).toList();
+    }
+
+    public void delete(Long id) {
+        reservaRepository.deleteById(id);
+    }
+
+
+    public ReservaResponse update(Long id, ReservaRequest request) {
+        Reserva reserva = reservaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+
+        Aula aula = aulaService.findById(request.aulaId())
+                .orElseThrow(() -> new RuntimeException("Aula no encontrada"));
+
+        TramoHorario tramo = tramoHorarioService.findById(request.tramoId())
+                .orElseThrow(() -> new RuntimeException("Tramo horario no encontrado"));
+
+        Usuario usuario = usuarioService.findById(request.usuarioId())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        reserva.setMotivo(request.motivo());
+        reserva.setNumAsistentes(request.numAsistentes());
+        reserva.setAula(aula);
+        reserva.setTramoHorario(tramo);
+        reserva.setUsuario(usuario);
+
+        Reserva reservaUpdated = reservaRepository.save(reserva);
+
+        return getReservaResponse(aula, tramo, usuario, reservaUpdated);
+    }
+
+    public ReservaResponse insert(ReservaRequest request) {
+
+        Aula aula = aulaService.findById(request.aulaId())
+                .orElseThrow(() -> new RuntimeException("Aula no encontrada"));
+
+        TramoHorario tramo = tramoHorarioService.findById(request.tramoId())
+                .orElseThrow(() -> new RuntimeException("Tramo horario no encontrado"));
+
+        Usuario usuario = usuarioService.findById(request.usuarioId())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
         Reserva reserva = Reserva.builder()
-                .motivo(reservaRequest.motivo())
-                .numAsistentes(reservaRequest.numAsistentes())
-                .aula(aula) // Asignar el aula correspondiente
-                .tramoHorario(tramoHorario) // Asignar el tramo horario correspondiente
-                .usuario(usuario) // Asignar el usuario correspondiente
+                .motivo(request.motivo())
+                .numAsistentes(request.numAsistentes())
+                .aula(aula)
+                .tramoHorario(tramo)
+                .usuario(usuario)
                 .build();
-        Reserva savedReserva = reservaRepository.save(reserva);
 
-        ReservaResponse reservaResponse = getReservaResponse(aula, tramoHorario, usuario, savedReserva);
-        return Optional.of(reservaResponse);
+        Reserva saved = reservaRepository.save(reserva);
+
+        return getReservaResponse(aula, tramo, usuario, saved);
     }
 
-
-    private static ReservaResponse getReservaResponse(Aula aula, TramoHorario tramoHorario, Usuario usuario,Reserva savedReserva) {
+    private ReservaResponse getReservaResponse(Aula aula, TramoHorario tramoHorario, Usuario usuario, Reserva savedReserva) {
         TramoHorarioResponse tramoResponse = new TramoHorarioResponse(
                 tramoHorario.getId(),
                 tramoHorario.getDiaSemana(),

@@ -1,5 +1,6 @@
 package com.example.reservasBoscoMdv.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -43,7 +44,9 @@ public class Usuario implements UserDetails {
     private String password;
 
     @OneToMany(mappedBy = "usuario")
+    @JsonBackReference(value = "usuario-reservas")
     private List<Reserva> reservas;
+
 
     //Devuelve el listado de roles
     @Override

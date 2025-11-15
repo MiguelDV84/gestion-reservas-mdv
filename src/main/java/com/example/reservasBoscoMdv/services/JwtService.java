@@ -1,5 +1,6 @@
 package com.example.reservasBoscoMdv.services;
 
+import com.example.reservasBoscoMdv.entities.Usuario;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -30,14 +31,18 @@ public class JwtService {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
+        // Obtener el usuario real del principal
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+
         // Construir el token JWT
         return Jwts.builder()
-                .subject(authentication.getName())  // Email del usuario
+                .subject(usuario.getEmail())  // Email del usuario
                 .issuer("gestion-centro-api")       // Quién emite el token
                 .issuedAt(new Date())               // Cuándo se creó
                 .expiration(new Date(
                         System.currentTimeMillis() + 86400000  // Expira en 24h
                 ))
+                .claim("id", usuario.getId()) // ID del usuario (email)
                 .claim("roles", roles)              // Roles del usuario
                 .signWith(secretKey)                // Firmar con clave secreta
                 .compact();                         // Generar String del token

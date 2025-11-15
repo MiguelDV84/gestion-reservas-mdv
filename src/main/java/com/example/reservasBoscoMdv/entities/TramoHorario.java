@@ -36,11 +36,11 @@ public class TramoHorario {
     @Column(name = "tipo_tramo", nullable = false)
     private TipoTramo tipoTramo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "aula_id")
     private Aula aula;
 
     @OneToMany(mappedBy = "tramoHorario")
     @JsonManagedReference(value = "tramo-reservas")
-    private List<Reserva> reserva;
+    private List<Reserva> reservas;
 }
