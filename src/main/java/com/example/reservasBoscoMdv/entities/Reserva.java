@@ -33,6 +33,9 @@ public class Reserva {
     @Column(name = "fecha_creacion", nullable = false, updatable = false)
     private LocalDate fechaCreacion;
 
+    @Column(name = "fecha_reserva", nullable = false)
+    private LocalDate fechaReserva;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "aula_id", nullable = false)
     @JsonBackReference(value = "aula-reservas")
@@ -45,6 +48,5 @@ public class Reserva {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "usuario_id", nullable = false)
-    @JsonManagedReference(value = "usuario-reservas")
     private Usuario usuario;
 }

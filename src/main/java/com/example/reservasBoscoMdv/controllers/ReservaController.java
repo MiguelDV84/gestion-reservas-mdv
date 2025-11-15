@@ -3,6 +3,7 @@ package com.example.reservasBoscoMdv.controllers;
 import com.example.reservasBoscoMdv.DTO.reserva.ReservaRequest;
 import com.example.reservasBoscoMdv.DTO.reserva.ReservaResponse;
 import com.example.reservasBoscoMdv.services.ReservaService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,25 +23,25 @@ public class ReservaController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ReservaResponse> getById(@PathVariable Long id) {
+    public ResponseEntity<ReservaResponse> getById(@Valid @PathVariable Long id) {
         ReservaResponse response = reservaService.findById(id);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/insert")
-    public ResponseEntity<ReservaResponse> insert(@RequestBody ReservaRequest reservaRequest) {
+    public ResponseEntity<ReservaResponse> insert(@Valid @RequestBody ReservaRequest reservaRequest) {
         ReservaResponse response = reservaService.insert(reservaRequest);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<ReservaResponse> update(@PathVariable Long id, @RequestBody ReservaRequest reservaRequest) {
+    public ResponseEntity<ReservaResponse> update(@Valid @PathVariable Long id,@Valid @RequestBody ReservaRequest reservaRequest) {
         ReservaResponse response = reservaService.update(id, reservaRequest);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@Valid @PathVariable Long id) {
         reservaService.delete(id);
         return ResponseEntity.noContent().build();
     }

@@ -1,5 +1,6 @@
 package com.example.reservasBoscoMdv.controllers;
 
+import com.example.reservasBoscoMdv.DTO.usuario.UsuarioResponse;
 import com.example.reservasBoscoMdv.entities.Usuario;
 import com.example.reservasBoscoMdv.services.UsuarioService;
 import lombok.RequiredArgsConstructor;
@@ -15,24 +16,24 @@ public class UsuarioController {
     private final UsuarioService usuarioService;
 
     @GetMapping("/list")
-    public ResponseEntity<Iterable<Usuario>> getAllUsuarios() {
+    public ResponseEntity<Iterable<UsuarioResponse>> getAllUsuarios() {
         return ResponseEntity.ok().body(usuarioService.findAll());
     }
 
-    @GetMapping("/list-name")
-    public ResponseEntity<Iterable<Usuario>> getUsuariosByName(String nombre) {
-        return ResponseEntity.ok().body(usuarioService.findAllByNombre(nombre));
+    @GetMapping("/list-name/{name}")
+    public ResponseEntity<Iterable<UsuarioResponse>> getUsuariosByName(@PathVariable String name) {
+        return ResponseEntity.ok().body(usuarioService.findAllByNombre(name));
     }
 
-    @GetMapping("/list-email")
-    public ResponseEntity<Usuario> getUsuarioByEmail(String email) {
+    @GetMapping("/list-email/{email}")
+    public ResponseEntity<UsuarioResponse> getUsuarioByEmail(@PathVariable String email) {
         return usuarioService.findByEmail(email)
                 .map(usuario -> ResponseEntity.ok().body(usuario))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Usuario> getUsuarioById(@PathVariable Long id) {
+    public ResponseEntity<UsuarioResponse> getUsuarioById(@PathVariable Long id) {
         return usuarioService.findById(id)
                 .map(usuario -> ResponseEntity.ok().body(usuario))
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -45,7 +46,7 @@ public class UsuarioController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Usuario> updateUsuario(@PathVariable Long id, @RequestBody Usuario usuarioActualizado) {
+    public ResponseEntity<UsuarioResponse> updateUsuario(@PathVariable Long id, @RequestBody Usuario usuarioActualizado) {
         return usuarioService.update(id, usuarioActualizado)
                 .map(updatedUsuario -> ResponseEntity.ok().body(updatedUsuario))
                 .orElseGet(() -> ResponseEntity.notFound().build());

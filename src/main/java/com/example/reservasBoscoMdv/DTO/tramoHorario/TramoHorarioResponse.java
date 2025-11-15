@@ -1,5 +1,6 @@
 package com.example.reservasBoscoMdv.DTO.tramoHorario;
 
+import com.example.reservasBoscoMdv.entities.TramoHorario;
 import com.example.reservasBoscoMdv.enums.DiaSemana;
 import com.example.reservasBoscoMdv.enums.TipoTramo;
 
@@ -11,4 +12,14 @@ public record TramoHorarioResponse(
         LocalTime horaInicio,
         LocalTime horaFin,
         TipoTramo tipoTramo
-) {}
+) {
+    public static TramoHorarioResponse fromEntity(TramoHorario tramoHorario) {
+        return new TramoHorarioResponse(
+                tramoHorario.getId(),
+                tramoHorario.getDiaSemana(),
+                tramoHorario.getHoraInicio(),
+                tramoHorario.getHoraFin(),
+                tramoHorario.getTipoTramo()
+        );
+    }
+}

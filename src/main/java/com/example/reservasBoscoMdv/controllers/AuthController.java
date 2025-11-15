@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequiredArgsConstructor    //Crea un constructor que Inyecta todos los objetos "final"
+@RequiredArgsConstructor
 @RequestMapping("/auth")
 @CrossOrigin(origins = "*")
 public class AuthController {
@@ -46,6 +46,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Credenciales incorrectas"));
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Error en el servidor"));
         }
