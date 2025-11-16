@@ -15,7 +15,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleConstraintViolation(DataIntegrityViolationException ex) {
         Throwable cause = ex.getCause();
-        String errores =  ex.getMostSpecificCause().getMessage();
 
         if(cause instanceof ConstraintViolationException cve) {
             String constraintName = cve.getConstraintName();
@@ -24,7 +23,6 @@ public class GlobalExceptionHandler {
                 ErrorResponse errorResponse =  ErrorResponse.builder()
                         .error(ErrorType.TRAMO_DUPLICADO.getCode())
                         .message(ErrorType.TRAMO_DUPLICADO.getMessage())
-                        .detail(errores)
                         .build();
 
                 return ResponseEntity.badRequest().body(errorResponse);
@@ -34,7 +32,6 @@ public class GlobalExceptionHandler {
         ErrorResponse genericError = ErrorResponse.builder()
                 .error(ErrorType.DATA_INTEGRITY_VIOLATION.getCode())
                 .message(ErrorType.DATA_INTEGRITY_VIOLATION.getMessage())
-                .detail(errores)
                 .build();
 
         return ResponseEntity.badRequest().body(genericError);
@@ -42,17 +39,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
-        String errores = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map( e -> e.getField() + ": " + e.getDefaultMessage())
-                .reduce("", (a, b) -> a + "; " + b);
-
         return ResponseEntity.badRequest().body(
                 ErrorResponse.builder()
                         .error(ErrorType.VALIDATION_ERROR.getCode())
                         .message(ErrorType.VALIDATION_ERROR.getMessage())
-                        .detail(errores)
                         .build()
         );
     }
@@ -62,7 +52,6 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .error(ex.getCode())
                 .message(ex.getMessage())
-                .detail("Se ha violado una regla de negocio")
                 .build();
 
         return ResponseEntity.badRequest().body(errorResponse);
@@ -73,7 +62,6 @@ public class GlobalExceptionHandler {
         ErrorResponse error = ErrorResponse.builder()
                 .error(ErrorType.JSON_PARSE_ERROR.getCode())
                 .message(ErrorType.JSON_PARSE_ERROR.getMessage())
-                .detail(ex.getMostSpecificCause().getMessage())
                 .build();
         return ResponseEntity.badRequest().body(error);
     }

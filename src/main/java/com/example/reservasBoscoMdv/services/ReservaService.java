@@ -45,23 +45,42 @@ public class ReservaService {
                 .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
         Aula aula = aulaService.findEntityById(request.aulaId());
         TramoHorario tramo = tramoHorarioService.findEntityById(request.tramoId());
-        Usuario usuario = usuarioService.findEntityById(request.usuarioId());
 
-        reserva.setMotivo(request.motivo());
-        reserva.setNumAsistentes(request.numAsistentes());
-        reserva.setFechaReserva(request.fechaReserva());
-        reserva.setAula(aula);
-        reserva.setTramoHorario(tramo);
-        reserva.setUsuario(usuario);
+        validarReserva(request, aula, tramo);
 
-        Reserva reservaUpdated = reservaRepository.save(reserva);
+        Reserva reservaUpdated = reservaRepository.save(Reserva.builder()
+                .id(reserva.getId())
+                .motivo(reserva.getMotivo())
+                .numAsistentes(reserva.getNumAsistentes())
+                .fechaReserva(reserva.getFechaReserva())
+                .aula(reserva.getAula())
+                .tramoHorario(reserva.getTramoHorario())
+                .usuario(reserva.getUsuario())
+                .build());
+
         return ReservaResponse.fromEntity(reservaUpdated);
     }
 
     public ReservaResponse insert(ReservaRequest request) {
         Aula aula = aulaService.findEntityById(request.aulaId());
         TramoHorario tramo = tramoHorarioService.findEntityById(request.tramoId());
+        Usuario usuario = usuarioService.findEntityById(request.usuarioId());
 
+        validarReserva(request, aula, tramo);
+
+        Reserva saved = reservaRepository.save(Reserva.builder()
+                .motivo(request.motivo())
+                .numAsistentes(request.numAsistentes())
+                .fechaReserva(request.fechaReserva())
+                .aula(aula)
+                .tramoHorario(tramo)
+                .usuario(usuario)
+                .build());
+
+        return ReservaResponse.fromEntity(saved);
+    }
+
+    private void validarReserva(ReservaRequest request, Aula aula, TramoHorario tramo) {
         if (request.numAsistentes() > aula.getCapacidad()) {
             throw new BusinessException(
                     ErrorType.AULA_CAPACIDAD_EXCEDIDA.getCode(),
@@ -75,17 +94,5 @@ public class ReservaService {
                     ErrorType.RESERVA_DUPLICADA.getMessage()
             );
         }
-
-        Usuario usuario = usuarioService.findEntityById(request.usuarioId());
-        Reserva saved = reservaRepository.save(Reserva.builder()
-                .motivo(request.motivo())
-                .numAsistentes(request.numAsistentes())
-                .fechaReserva(request.fechaReserva())
-                .aula(aula)
-                .tramoHorario(tramo)
-                .usuario(usuario)
-                .build());
-
-        return ReservaResponse.fromEntity(saved);
     }
 }

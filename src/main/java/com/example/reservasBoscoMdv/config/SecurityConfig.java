@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,19 +31,35 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 // Deshabilitar CSRF (no necesario en APIs REST con JWT)
-                .csrf(csrf -> csrf.disable())
+                .csrf(AbstractHttpConfigurer::disable)
 
                 // Configurar autorización de peticiones HTTP
                 // Define qué rutas son públicas y cuáles requieren autenticación
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()  // /auth/login y /auth/register son públicos
-                        .requestMatchers("/tramo-horario/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/tramo-horario/list").hasRole("USER")
+                        .requestMatchers("/tramo-horario/insert").hasRole("ADMIN")
+                        .requestMatchers("/tramo-horario/delete/**").hasRole("ADMIN")
+                        .requestMatchers("/tramo-horario/update/**").hasRole("ADMIN")
                         .requestMatchers("/public/**").permitAll()
-                        .requestMatchers("/aula/**").permitAll()
-                        .requestMatchers("/reserva/**").permitAll()
-                        .requestMatchers("/usuario/**").permitAll()  // Solo ADMIN puede gestionar usuarios
+                        .requestMatchers("/aula/list").hasRole("USER")
+                        .requestMatchers("/aula/list/capacidad/**").hasRole("USER")
+                        .requestMatchers("/aula/list/ordenadores").hasRole("USER")
+                        .requestMatchers("/aula/list/no-ordenadores").hasRole("USER")
+                        .requestMatchers("/aula/with-reservas/**").hasRole("USER")
+                        .requestMatchers("/aula/delete/**").hasRole("ADMIN")
+                        .requestMatchers("/aula/update/**").hasRole("ADMIN")
+                        .requestMatchers("/aula/insert/**").hasRole("ADMIN")
+                        .requestMatchers("/reserva/list").hasRole("USER")
+                        .requestMatchers("/reserva/insert").hasRole("USER")
+                        .requestMatchers("/reserva/delete/**").hasRole("USER")
+                        .requestMatchers("/reserva/update/**").hasRole("USER")
+                        .requestMatchers("/usuario/update/**").hasRole("USER")
+                        .requestMatchers("/usuario/delete/**").hasRole("ADMIN")
+                        .requestMatchers("/usuario/list-email/**").hasRole("ADMIN")
+                        .requestMatchers("/usuario/list-name/**").hasRole("ADMIN")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .anyRequest().authenticated()              // Todas las demás rutas requieren autenticación
+                        .anyRequest().authenticated()
                 )
 
                 // Configurar validación automática de tokens JWT
@@ -72,7 +89,7 @@ public class SecurityConfig {
         // Configura cómo extraer los roles del token
         JwtGrantedAuthoritiesConverter authoritiesConverter = new JwtGrantedAuthoritiesConverter();
         authoritiesConverter.setAuthoritiesClaimName("roles");  // Buscar en claim "roles"
-        authoritiesConverter.setAuthorityPrefix("");             // Sin prefijo adicional
+        authoritiesConverter.setAuthorityPrefix("ROLE_");             // Sin prefijo adicional
 
         JwtAuthenticationConverter jwtConverter = new JwtAuthenticationConverter();
         jwtConverter.setJwtGrantedAuthoritiesConverter(authoritiesConverter);

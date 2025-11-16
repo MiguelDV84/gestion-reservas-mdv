@@ -3,6 +3,7 @@ package com.example.reservasBoscoMdv.controllers;
 import com.example.reservasBoscoMdv.DTO.LoginRequest;
 import com.example.reservasBoscoMdv.DTO.RegisterRequest;
 import com.example.reservasBoscoMdv.entities.Usuario;
+import com.example.reservasBoscoMdv.enums.Roles;
 import com.example.reservasBoscoMdv.repositories.IUsuarioRepository;
 import com.example.reservasBoscoMdv.services.CustomUserDetailsService;
 import com.example.reservasBoscoMdv.services.JwtService;
@@ -67,7 +68,7 @@ public class AuthController {
             usuario.setPassword(passwordEncoder.encode(registerRequest.password()));  // Cifrar password
             usuario.setNombre(registerRequest.nombre());
             usuario.setApellidos(registerRequest.apellidos());
-            usuario.setRoles("ROLE_USER");  // Rol por defecto
+            usuario.setRoles(Roles.USER);  // Rol por defecto
 
             usuarioRepository.save(usuario);
 

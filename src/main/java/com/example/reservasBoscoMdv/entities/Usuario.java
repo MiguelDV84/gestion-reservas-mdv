@@ -1,5 +1,6 @@
 package com.example.reservasBoscoMdv.entities;
 
+import com.example.reservasBoscoMdv.enums.Roles;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -31,8 +32,9 @@ public class Usuario implements UserDetails {
     @Column(name = "apellidos", nullable = false)
     private String apellidos;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "roles", nullable = false)
-    private String roles; // "ROLE_USER,ROLE_ADMIN"
+    private Roles roles;
 
     @NotBlank (message = "El email no puede estar en blanco")
     @Column(unique = true)
@@ -54,7 +56,7 @@ public class Usuario implements UserDetails {
         // Convierte los roles de String a GrantedAuthority
         List<GrantedAuthority> authorities = new ArrayList<>();
 
-        for (String role : roles.split(",")) {
+        for (String role : roles.name().split(",")) {
             authorities.add(new SimpleGrantedAuthority(role));
         }
 
