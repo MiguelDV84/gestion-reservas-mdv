@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/reserva")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:5173")
 public class ReservaController {
 
     private final ReservaService reservaService;
@@ -19,6 +19,12 @@ public class ReservaController {
     @GetMapping("/list")
     public ResponseEntity<Iterable<ReservaResponse>> list() {
         Iterable<ReservaResponse> responses = reservaService.findAll();
+        return ResponseEntity.ok(responses);
+    }
+
+    @GetMapping("/list-usuario/{usuarioId}")
+    public ResponseEntity<Iterable<ReservaResponse>> listByUsuarioId(@Valid @PathVariable Long usuarioId) {
+        Iterable<ReservaResponse> responses = reservaService.findAllByUsuarioId(usuarioId);
         return ResponseEntity.ok(responses);
     }
 

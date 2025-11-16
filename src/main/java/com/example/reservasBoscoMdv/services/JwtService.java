@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,26 +27,25 @@ public class JwtService {
 
     // Genera un token JWT para un usuario autenticado
     public String generateToken(Authentication authentication) {
-        // Extraer los roles del usuario y convertirlos a String
-        String roles = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
 
-        // Obtener el usuario real del principal
         Usuario usuario = (Usuario) authentication.getPrincipal();
 
-        // Construir el token JWT
+        // Convertir authorities a lista de strings sin prefijo
+        List<String> roles = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .map(auth -> auth.replace("ROLE_", ""))  // Convertir "ROLE_ADMIN" → "ADMIN"
+                .toList();
+
         return Jwts.builder()
-                .subject(usuario.getEmail())  // Email del usuario
-                .issuer("gestion-centro-api")       // Quién emite el token
-                .issuedAt(new Date())               // Cuándo se creó
-                .expiration(new Date(
-                        System.currentTimeMillis() + 86400000  // Expira en 24h
-                ))
-                .claim("id", usuario.getId()) // ID del usuario (email)
-                .claim("roles", roles)              // Roles del usuario
-                .signWith(secretKey)                // Firmar con clave secreta
-                .compact();                         // Generar String del token
+                .subject(usuario.getEmail())
+                .issuer("gestion-centro-api")
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + 86400000)) // 24h
+                .claim("id", usuario.getId())
+                .claim("roles", roles)  // 🔥 ahora es LISTA, no STRING
+                .signWith(secretKey)
+                .compact();
     }
+
 
 }

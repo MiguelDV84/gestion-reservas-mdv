@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gestión de Reservas</title>
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <div id="app" class="app">
+    <aside class="sidebar">
+      <div class="brand">Reservas Bosco</div>
+      <nav id="nav">
+        <a href="#/" data-route>Dashboard</a>
+        <a href="#/aulas" data-route>Aulas</a>
+        <a href="#/tramos" data-route>Tramos</a>
+        <a href="#/reservas" data-route>Reservas</a>
+        <a href="#/usuarios" data-route>Usuarios</a>
+      </nav>
+      <footer class="sidebar-footer">
+        <span id="auth-user">Invitado</span>
+        <button id="btn-logout" class="link">Cerrar sesión</button>
+      </footer>
+    </aside>
+    <main class="main">
+      <header class="header">
+        <div class="search"><input id="search" placeholder="Buscar..." /></div>
+        <div class="actions">
+          <a href="#/login" id="btn-login" class="btn">Iniciar sesión</a>
+          <a href="#/register" id="btn-register" class="btn ghost">Registrarse</a>
+        </div>
+      </header>
+      <section id="content" class="content"></section>
+    </main>
+  </div>
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>
+

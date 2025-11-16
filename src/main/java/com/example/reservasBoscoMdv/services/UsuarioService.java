@@ -49,7 +49,7 @@ public class UsuarioService {
             usuario.setNombre(usuarioActualizado.getNombre());
             usuario.setApellidos(usuarioActualizado.getApellidos());
             usuario.setEmail(usuarioActualizado.getEmail());
-            usuario.setRoles(usuarioActualizado.getRoles());
+            usuario.setRole(usuarioActualizado.getRole());
 
             return UsuarioResponse.fromEntity(usuarioRepository.save(usuario));
         });

@@ -6,6 +6,7 @@ import com.example.reservasBoscoMdv.entities.Aula;
 import com.example.reservasBoscoMdv.entities.Reserva;
 import com.example.reservasBoscoMdv.entities.TramoHorario;
 import com.example.reservasBoscoMdv.entities.Usuario;
+import com.example.reservasBoscoMdv.enums.DiaSemana;
 import com.example.reservasBoscoMdv.enums.ErrorType;
 import com.example.reservasBoscoMdv.errors.BusinessException;
 import com.example.reservasBoscoMdv.repositories.IReservaRepository;
@@ -26,11 +27,21 @@ public class ReservaService {
     public ReservaResponse findById(Long id) {
         return reservaRepository.findById(id)
                 .map(ReservaResponse::fromEntity)
-                .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+                .orElseThrow(() -> new BusinessException(
+                        ErrorType.RESERVA_NO_ENCONTRADA.getCode(),
+                        ErrorType.RESERVA_NO_ENCONTRADA.getMessage()
+                ));
     }
 
     public List<ReservaResponse> findAll() {
         return reservaRepository.findAll()
+                .stream()
+                .map(ReservaResponse::fromEntity)
+                .toList();
+    }
+
+    public List<ReservaResponse> findAllByUsuarioId(Long usuarioId) {
+        return reservaRepository.findByUsuarioId(usuarioId)
                 .stream()
                 .map(ReservaResponse::fromEntity)
                 .toList();
@@ -42,11 +53,15 @@ public class ReservaService {
 
     public ReservaResponse update(Long id, ReservaRequest request) {
         Reserva reserva = reservaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+                .orElseThrow(() -> new BusinessException(
+                        ErrorType.RESERVA_NO_ENCONTRADA.getCode(),
+                        ErrorType.RESERVA_NO_ENCONTRADA.getMessage())
+                );
         Aula aula = aulaService.findEntityById(request.aulaId());
         TramoHorario tramo = tramoHorarioService.findEntityById(request.tramoId());
+        DiaSemana diaSemana = DiaSemana.convertir(request.fechaReserva().getDayOfWeek());
 
-        validarReserva(request, aula, tramo);
+        validarReserva(request, aula, tramo, diaSemana);
 
         Reserva reservaUpdated = reservaRepository.save(Reserva.builder()
                 .id(reserva.getId())
@@ -65,8 +80,9 @@ public class ReservaService {
         Aula aula = aulaService.findEntityById(request.aulaId());
         TramoHorario tramo = tramoHorarioService.findEntityById(request.tramoId());
         Usuario usuario = usuarioService.findEntityById(request.usuarioId());
+        DiaSemana diaSemana = DiaSemana.convertir(request.fechaReserva().getDayOfWeek());
 
-        validarReserva(request, aula, tramo);
+        validarReserva(request, aula, tramo, diaSemana);
 
         Reserva saved = reservaRepository.save(Reserva.builder()
                 .motivo(request.motivo())
@@ -80,7 +96,7 @@ public class ReservaService {
         return ReservaResponse.fromEntity(saved);
     }
 
-    private void validarReserva(ReservaRequest request, Aula aula, TramoHorario tramo) {
+    private void validarReserva(ReservaRequest request, Aula aula, TramoHorario tramo, DiaSemana diaSemana) {
         if (request.numAsistentes() > aula.getCapacidad()) {
             throw new BusinessException(
                     ErrorType.AULA_CAPACIDAD_EXCEDIDA.getCode(),
@@ -94,5 +110,13 @@ public class ReservaService {
                     ErrorType.RESERVA_DUPLICADA.getMessage()
             );
         }
+
+        if(tramo.getDiaSemana() != diaSemana ) {
+            throw new BusinessException(
+                    ErrorType.RESERVA_TRAMO_DIA_INCORRECTO.getCode(),
+                    ErrorType.RESERVA_TRAMO_DIA_INCORRECTO.getMessage()
+            );
+        }
+
     }
 }

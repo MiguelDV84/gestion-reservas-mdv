@@ -34,7 +34,7 @@ public class Usuario implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "roles", nullable = false)
-    private Roles roles;
+    private Roles role;
 
     @NotBlank (message = "El email no puede estar en blanco")
     @Column(unique = true)
@@ -53,15 +53,11 @@ public class Usuario implements UserDetails {
     //Devuelve el listado de roles
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Convierte los roles de String a GrantedAuthority
         List<GrantedAuthority> authorities = new ArrayList<>();
-
-        for (String role : roles.name().split(",")) {
-            authorities.add(new SimpleGrantedAuthority(role));
-        }
-
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + role.name()));
         return authorities;
     }
+
 
     @Override
     public String getUsername() {
