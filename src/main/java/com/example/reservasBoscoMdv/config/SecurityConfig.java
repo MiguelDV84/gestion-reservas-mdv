@@ -38,7 +38,7 @@ public class SecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
 
                 .authorizeHttpRequests(auth -> auth
-                       /* .requestMatchers("/auth/**").permitAll()
+                       .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/tramo-horario/list").hasRole("USER")
                         .requestMatchers("/tramo-horario/insert").hasRole("ADMIN")
                         .requestMatchers("/tramo-horario/delete/**").hasRole("ADMIN")
@@ -60,7 +60,7 @@ public class SecurityConfig {
                         .requestMatchers("/usuario/delete/**").hasRole("ADMIN")
                         .requestMatchers("/usuario/list-email/**").hasRole("ADMIN")
                         .requestMatchers("/usuario/list-name/**").hasRole("ADMIN")
-                        .requestMatchers("/admin/**").hasRole("ADMIN")*/
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2

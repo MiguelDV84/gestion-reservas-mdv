@@ -65,11 +65,12 @@ public class ReservaService {
 
         Reserva reservaUpdated = reservaRepository.save(Reserva.builder()
                 .id(reserva.getId())
-                .motivo(reserva.getMotivo())
-                .numAsistentes(reserva.getNumAsistentes())
-                .fechaReserva(reserva.getFechaReserva())
-                .aula(reserva.getAula())
-                .tramoHorario(reserva.getTramoHorario())
+                .motivo(request.motivo())
+                .numAsistentes(request.numAsistentes())
+                .fechaCreacion(reserva.getFechaCreacion())
+                .fechaReserva(request.fechaReserva())
+                .aula(aula)
+                .tramoHorario(tramo)
                 .usuario(reserva.getUsuario())
                 .build());
 
