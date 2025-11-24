@@ -20,6 +20,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class SecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
 
                 .authorizeHttpRequests(auth -> auth
-                       .requestMatchers("/auth/**").permitAll()
+                        /*.requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/tramo-horario/list").hasRole("USER")
                         .requestMatchers("/tramo-horario/insert").hasRole("ADMIN")
                         .requestMatchers("/tramo-horario/delete/**").hasRole("ADMIN")
@@ -60,8 +61,8 @@ public class SecurityConfig {
                         .requestMatchers("/usuario/delete/**").hasRole("ADMIN")
                         .requestMatchers("/usuario/list-email/**").hasRole("ADMIN")
                         .requestMatchers("/usuario/list-name/**").hasRole("ADMIN")
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .anyRequest().authenticated()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")*/
+                        .anyRequest().permitAll()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt
@@ -111,4 +112,6 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
+
+
 }
