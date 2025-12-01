@@ -61,7 +61,7 @@ public class ReservaService {
         TramoHorario tramo = tramoHorarioService.findEntityById(request.tramoId());
         DiaSemana diaSemana = DiaSemana.convertir(request.fechaReserva().getDayOfWeek());
 
-        validarReserva(request, aula, tramo, diaSemana);
+        validarReserva(request, aula, tramo, diaSemana, id);
 
         Reserva reservaUpdated = reservaRepository.save(Reserva.builder()
                 .id(reserva.getId())
@@ -83,7 +83,7 @@ public class ReservaService {
         Usuario usuario = usuarioService.findEntityById(request.usuarioId());
         DiaSemana diaSemana = DiaSemana.convertir(request.fechaReserva().getDayOfWeek());
 
-        validarReserva(request, aula, tramo, diaSemana);
+        validarReserva(request, aula, tramo, diaSemana, null);
 
         Reserva saved = reservaRepository.save(Reserva.builder()
                 .motivo(request.motivo())
@@ -97,7 +97,7 @@ public class ReservaService {
         return ReservaResponse.fromEntity(saved);
     }
 
-    private void validarReserva(ReservaRequest request, Aula aula, TramoHorario tramo, DiaSemana diaSemana) {
+    private void validarReserva(ReservaRequest request, Aula aula, TramoHorario tramo, DiaSemana diaSemana, Long reservaIdActual) {
         if (request.numAsistentes() > aula.getCapacidad()) {
             throw new BusinessException(
                     ErrorType.AULA_CAPACIDAD_EXCEDIDA.getCode(),
@@ -105,11 +105,40 @@ public class ReservaService {
             );
         }
 
-        if (reservaRepository.existsByAulaAndFechaReservaAndTramoHorario(aula.getId(), request.fechaReserva(), tramo.getId())) {
-            throw new BusinessException(
-                    ErrorType.RESERVA_DUPLICADA.getCode(),
-                    ErrorType.RESERVA_DUPLICADA.getMessage()
-            );
+        // Verificar si existe una reserva duplicada, pero excluir la reserva actual si se está editando
+        boolean existeReservaDuplicada = reservaRepository.existsByAulaAndFechaReservaAndTramoHorario(
+                aula.getId(),
+                request.fechaReserva(),
+                tramo.getId()
+        );
+
+        if (existeReservaDuplicada) {
+            // Si estamos editando, verificar que la reserva duplicada no sea la misma que estamos editando
+            if (reservaIdActual != null) {
+                // Buscar la reserva existente para comparar IDs
+                List<Reserva> reservasExistentes = reservaRepository.findByAulaIdAndFechaReservaAndTramoHorarioId(
+                        aula.getId(),
+                        request.fechaReserva(),
+                        tramo.getId()
+                );
+
+                // Solo lanzar error si hay una reserva diferente a la actual
+                boolean hayOtraReserva = reservasExistentes.stream()
+                        .anyMatch(r -> !r.getId().equals(reservaIdActual));
+
+                if (hayOtraReserva) {
+                    throw new BusinessException(
+                            ErrorType.RESERVA_DUPLICADA.getCode(),
+                            ErrorType.RESERVA_DUPLICADA.getMessage()
+                    );
+                }
+            } else {
+                // Si es una nueva reserva, siempre lanzar error si existe duplicado
+                throw new BusinessException(
+                        ErrorType.RESERVA_DUPLICADA.getCode(),
+                        ErrorType.RESERVA_DUPLICADA.getMessage()
+                );
+            }
         }
 
         if(tramo.getDiaSemana() != diaSemana ) {
@@ -118,6 +147,5 @@ public class ReservaService {
                     ErrorType.RESERVA_TRAMO_DIA_INCORRECTO.getMessage()
             );
         }
-
     }
 }

@@ -26,4 +26,15 @@ public interface IReservaRepository extends JpaRepository<Reserva, Long> {
             """)
     List<Reserva> findByUsuarioId(Long usuarioId);
 
+    @Query("""
+                SELECT r
+                FROM Reserva r
+                WHERE r.aula.id = :aulaId
+                  AND r.fechaReserva = :fechaReserva
+                  AND r.tramoHorario.id = :tramoId
+            """)
+    List<Reserva> findByAulaIdAndFechaReservaAndTramoHorarioId(@Param("aulaId") Long aulaId,
+                                                                @Param("fechaReserva") LocalDate fechaReserva,
+                                                                @Param("tramoId") Long tramoHorarioId);
+
 }
