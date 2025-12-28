@@ -1,7 +1,10 @@
 # ---------- STAGE 1: Build ----------
 FROM maven:3.9-eclipse-temurin-21 AS builder
 
-# Copiar el código fuente
+# Configurar encoding
+ENV MAVEN_OPTS="-Dfile.encoding=UTF-8"
+
+# Copiar el codigo fuente
 WORKDIR /app
 COPY pom.xml .
 COPY src ./src
